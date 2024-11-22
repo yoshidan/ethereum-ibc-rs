@@ -914,7 +914,7 @@ fn maybe_consensus_state(
     }
 }
 
-fn trim_left_zero(value: &[u8]) -> &[u8] {
+pub fn trim_left_zero(value: &[u8]) -> &[u8] {
     let mut pos = 0;
     for v in value {
         if *v != 0 {
