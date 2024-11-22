@@ -125,60 +125,12 @@ impl<const SYNC_COMMITTEE_SIZE: usize> ClientState<SYNC_COMMITTEE_SIZE> {
         state_root: H256,
         account_update: &AccountUpdateInfo,
     ) -> Result<(), Error> {
-        match self
-            .execution_verifier
-            .verify_account(
-                state_root,
-                &self.ibc_address,
-                account_update.account_proof.clone(),
-            )
-            .map_err(|e| {
-                Error::MPTVerificationError(
-                    e,
-                    state_root,
-                    hex::encode(self.ibc_address.0),
-                    account_update
-                        .account_proof
-                        .iter()
-                        .map(hex::encode)
-                        .collect(),
-                )
-            })? {
-            Some(account) => {
-                if account_update.account_storage_root == account.storage_root {
-                    Ok(())
-                } else {
-                    Err(Error::AccountStorageRootMismatch(
-                        account_update.account_storage_root,
-                        account.storage_root,
-                        state_root,
-                        hex::encode(self.ibc_address.0),
-                        account_update
-                            .account_proof
-                            .iter()
-                            .map(hex::encode)
-                            .collect(),
-                    ))
-                }
-            }
-            None => {
-                if account_update.account_storage_root.is_zero() {
-                    Ok(())
-                } else {
-                    Err(Error::AccountStorageRootMismatch(
-                        account_update.account_storage_root,
-                        H256::default(),
-                        state_root,
-                        hex::encode(self.ibc_address.0),
-                        account_update
-                            .account_proof
-                            .iter()
-                            .map(hex::encode)
-                            .collect(),
-                    ))
-                }
-            }
-        }
+        verify_account_storage(
+            &self.ibc_address,
+            &self.execution_verifier,
+            state_root,
+            account_update,
+        )
     }
 
     pub fn verify_membership(
@@ -1023,6 +975,67 @@ fn verify_delay_passed(
     }
 
     Ok(())
+}
+
+pub fn verify_account_storage(
+    ibc_address: &Address,
+    execution_verifier: &ExecutionVerifier,
+    state_root: H256,
+    account_update: &AccountUpdateInfo,
+) -> Result<(), Error> {
+    match execution_verifier
+        .verify_account(
+            state_root,
+            ibc_address,
+            account_update.account_proof.clone(),
+        )
+        .map_err(|e| {
+            Error::MPTVerificationError(
+                e,
+                state_root,
+                hex::encode(ibc_address.0),
+                account_update
+                    .account_proof
+                    .iter()
+                    .map(hex::encode)
+                    .collect(),
+            )
+        })? {
+        Some(account) => {
+            if account_update.account_storage_root == account.storage_root {
+                Ok(())
+            } else {
+                Err(Error::AccountStorageRootMismatch(
+                    account_update.account_storage_root,
+                    account.storage_root,
+                    state_root,
+                    hex::encode(ibc_address.0),
+                    account_update
+                        .account_proof
+                        .iter()
+                        .map(hex::encode)
+                        .collect(),
+                ))
+            }
+        }
+        None => {
+            if account_update.account_storage_root.is_zero() {
+                Ok(())
+            } else {
+                Err(Error::AccountStorageRootMismatch(
+                    account_update.account_storage_root,
+                    H256::default(),
+                    state_root,
+                    hex::encode(ibc_address.0),
+                    account_update
+                        .account_proof
+                        .iter()
+                        .map(hex::encode)
+                        .collect(),
+                ))
+            }
+        }
+    }
 }
 
 #[cfg(test)]
