@@ -243,7 +243,7 @@ pub(crate) fn convert_header_to_proto(header: &BeaconBlockHeader) -> ProtoBeacon
     }
 }
 
-pub(crate) fn convert_proto_to_execution_update(
+pub fn convert_proto_to_execution_update(
     execution_update: ProtoExecutionUpdate,
 ) -> ExecutionUpdateInfo {
     ExecutionUpdateInfo {
@@ -346,7 +346,7 @@ pub(crate) fn convert_consensus_update_to_proto<const SYNC_COMMITTEE_SIZE: usize
     }
 }
 
-pub(crate) fn convert_proto_to_consensus_update<const SYNC_COMMITTEE_SIZE: usize>(
+pub fn convert_proto_to_consensus_update<const SYNC_COMMITTEE_SIZE: usize>(
     consensus_update: ProtoConsensusUpdate,
 ) -> Result<ConsensusUpdateInfo<SYNC_COMMITTEE_SIZE>, Error> {
     let attested_header = convert_proto_to_header(
