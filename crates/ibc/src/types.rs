@@ -139,25 +139,7 @@ impl<const SYNC_COMMITTEE_SIZE: usize> TryFrom<ProtoTrustedSyncCommittee>
                 trusted_height.revision_number,
                 trusted_height.revision_height,
             )?,
-            sync_committee: SyncCommittee {
-                pubkeys: Vector::<PublicKey, SYNC_COMMITTEE_SIZE>::from_iter(
-                    value
-                        .sync_committee
-                        .as_ref()
-                        .ok_or(Error::proto_missing("sync_committee"))?
-                        .pubkeys
-                        .clone()
-                        .into_iter()
-                        .map(|pk| pk.try_into())
-                        .collect::<Result<Vec<PublicKey>, _>>()?,
-                ),
-                aggregate_pubkey: PublicKey::try_from(
-                    value
-                        .sync_committee
-                        .ok_or(Error::proto_missing("sync_committee"))?
-                        .aggregate_pubkey,
-                )?,
-            },
+            sync_committee: convert_proto_to_sync_committee(value.sync_committee)?,
             is_next: value.is_next,
         })
     }
@@ -381,24 +363,7 @@ pub fn convert_proto_to_consensus_update<const SYNC_COMMITTEE_SIZE: usize>(
             None
         } else {
             Some((
-                SyncCommittee {
-                    pubkeys: Vector::<PublicKey, SYNC_COMMITTEE_SIZE>::from_iter(
-                        consensus_update
-                            .next_sync_committee
-                            .clone()
-                            .ok_or(Error::proto_missing("next_sync_committee"))?
-                            .pubkeys
-                            .into_iter()
-                            .map(|pk| pk.try_into())
-                            .collect::<Result<Vec<PublicKey>, _>>()?,
-                    ),
-                    aggregate_pubkey: PublicKey::try_from(
-                        consensus_update
-                            .next_sync_committee
-                            .ok_or(Error::proto_missing("next_sync_committee"))?
-                            .aggregate_pubkey,
-                    )?,
-                },
+                convert_proto_to_sync_committee(consensus_update.next_sync_committee)?,
                 decode_branch(consensus_update.next_sync_committee_branch),
             ))
         },
@@ -416,6 +381,28 @@ pub fn convert_proto_to_consensus_update<const SYNC_COMMITTEE_SIZE: usize>(
         finalized_execution_branch,
     };
     Ok(consensus_update)
+}
+
+pub fn convert_proto_to_sync_committee<const SYNC_COMMITTEE_SIZE: usize>(
+    sync_committee: Option<ProtoSyncCommittee>,
+) -> Result<SyncCommittee<SYNC_COMMITTEE_SIZE>, Error> {
+    let sync_committee = SyncCommittee {
+        pubkeys: Vector::<PublicKey, SYNC_COMMITTEE_SIZE>::from_iter(
+            sync_committee
+                .clone()
+                .ok_or(Error::proto_missing("next_sync_committee"))?
+                .pubkeys
+                .into_iter()
+                .map(|pk| pk.try_into())
+                .collect::<Result<Vec<PublicKey>, _>>()?,
+        ),
+        aggregate_pubkey: PublicKey::try_from(
+            sync_committee
+                .ok_or(Error::proto_missing("next_sync_committee"))?
+                .aggregate_pubkey,
+        )?,
+    };
+    Ok(sync_committee)
 }
 
 pub(crate) fn decode_branch(bz: Vec<Vec<u8>>) -> Vec<H256> {
