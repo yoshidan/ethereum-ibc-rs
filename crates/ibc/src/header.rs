@@ -239,6 +239,7 @@ mod tests {
         let base_finalized_epoch = base_attested_slot / ctx.slots_per_epoch();
         let dummy_execution_state_root = [1u8; 32].into();
         let dummy_execution_block_number = 1;
+        let dummy_execution_block_hash = [1u8; 32].into();
 
         for b in [false, true] {
             let (update, _) = gen_light_client_update_with_params::<32, _>(
@@ -248,6 +249,7 @@ mod tests {
                 base_finalized_epoch,
                 dummy_execution_state_root,
                 dummy_execution_block_number.into(),
+                dummy_execution_block_hash,
                 current_sync_committee,
                 scm.get_committee(2),
                 b,
@@ -304,6 +306,7 @@ mod tests {
             base_finalized_epoch,
             dummy_execution_state_root,
             dummy_execution_block_number.into(),
+            dummy_execution_block_hash,
             current_sync_committee,
             scm.get_committee(2),
             true,

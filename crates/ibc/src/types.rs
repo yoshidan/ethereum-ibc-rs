@@ -81,6 +81,10 @@ pub struct ExecutionUpdateInfo {
     pub block_number: U64,
     /// Branch indicating the block number in the tree corresponding to the execution payload
     pub block_number_branch: Vec<H256>,
+    /// Block hash of the execution payload
+    pub block_hash: H256,
+    /// Branch indicating the block hash in the tree corresponding to the execution payload
+    pub block_hash_branch: Vec<H256>,
 }
 
 impl ExecutionUpdate for ExecutionUpdateInfo {
@@ -98,6 +102,14 @@ impl ExecutionUpdate for ExecutionUpdateInfo {
 
     fn block_number_branch(&self) -> Vec<H256> {
         self.block_number_branch.clone()
+    }
+
+    fn block_hash(&self) -> H256 {
+        self.block_hash
+    }
+
+    fn block_hash_branch(&self) -> Vec<H256> {
+        self.block_hash_branch.clone()
     }
 }
 
@@ -259,6 +271,12 @@ pub(crate) fn convert_proto_to_execution_update(
             .into_iter()
             .map(|n| H256::from_slice(&n))
             .collect(),
+        block_hash: H256::from_slice(&execution_update.block_hash),
+        block_hash_branch: execution_update
+            .block_hash_branch
+            .into_iter()
+            .map(|n| H256::from_slice(&n))
+            .collect(),
     }
 }
 
@@ -275,6 +293,12 @@ pub(crate) fn convert_execution_update_to_proto(
         block_number: execution_update.block_number.into(),
         block_number_branch: execution_update
             .block_number_branch
+            .into_iter()
+            .map(|n| n.as_bytes().to_vec())
+            .collect(),
+        block_hash: execution_update.block_hash.as_bytes().into(),
+        block_hash_branch: execution_update
+            .block_hash_branch
             .into_iter()
             .map(|n| n.as_bytes().to_vec())
             .collect(),

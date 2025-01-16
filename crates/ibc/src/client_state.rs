@@ -770,6 +770,7 @@ impl<const SYNC_COMMITTEE_SIZE: usize> TryFrom<RawClientState>
                     execution_payload_state_root_gindex: spec.execution_payload_state_root_gindex,
                     execution_payload_block_number_gindex: spec
                         .execution_payload_block_number_gindex,
+                    execution_payload_block_hash_gindex: spec.execution_payload_block_hash_gindex,
                 })
             } else {
                 Err(Error::proto_missing(&format!("forks[{}].spec", idx)))
@@ -852,6 +853,7 @@ impl<const SYNC_COMMITTEE_SIZE: usize> From<ClientState<SYNC_COMMITTEE_SIZE>> fo
                     execution_payload_state_root_gindex: spec.execution_payload_state_root_gindex,
                     execution_payload_block_number_gindex: spec
                         .execution_payload_block_number_gindex,
+                    execution_payload_block_hash_gindex: spec.execution_payload_block_hash_gindex,
                 }),
             }
         }

@@ -128,6 +128,7 @@ mod tests {
         let current_sync_committee = scm.get_committee(base_store_period);
         let dummy_execution_state_root = [1u8; 32].into();
         let dummy_execution_block_number = 1;
+        let dummy_execution_block_hash = [1u8; 32].into();
 
         let client_state =
             ClientState::<{ ethereum_consensus::preset::minimal::PRESET.SYNC_COMMITTEE_SIZE }> {
@@ -184,6 +185,7 @@ mod tests {
                 base_finalized_epoch,
                 dummy_execution_state_root,
                 dummy_execution_block_number.into(),
+                dummy_execution_block_hash,
                 current_sync_committee,
                 scm.get_committee(base_store_period + 1),
                 true,
@@ -234,6 +236,7 @@ mod tests {
                 base_finalized_epoch + ctx.epochs_per_sync_committee_period(),
                 dummy_execution_state_root,
                 dummy_execution_block_number.into(),
+                dummy_execution_block_hash,
                 current_sync_committee,
                 scm.get_committee(base_store_period + 2),
                 true,
@@ -285,6 +288,7 @@ mod tests {
                 base_finalized_epoch + ctx.epochs_per_sync_committee_period(),
                 dummy_execution_state_root,
                 dummy_execution_block_number.into(),
+                dummy_execution_block_hash,
                 current_sync_committee,
                 scm.get_committee(base_store_period + 2),
                 false,
@@ -324,6 +328,7 @@ mod tests {
                 base_finalized_epoch - ctx.epochs_per_sync_committee_period(),
                 dummy_execution_state_root,
                 dummy_execution_block_number.into(),
+                dummy_execution_block_hash,
                 current_sync_committee,
                 scm.get_committee(base_store_period),
                 true,
